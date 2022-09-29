@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial HC12(1, 0);
+SoftwareSerial HC12(11, 10);
 
 void setup() 
 {
