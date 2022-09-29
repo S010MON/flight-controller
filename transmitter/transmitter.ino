@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 
-const byte Rxd = 0;
-const byte Txd = 1;
+const byte Rxd = 4;
+const byte Txd = 5;
 
 SoftwareSerial HC12(Txd, Rxd);
 
@@ -15,7 +15,7 @@ void loop()
 {
   while(HC12.available())
   {
-    Serial.write(HC12.read());
+    Serial.print(HC12.read());
   }
   while(Serial.available())
   {
