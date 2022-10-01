@@ -71,24 +71,21 @@ void loop()
       }
       else
       {
+        // DEBUGGING
+        Serial.write(packet[0]);
+        Serial.write(' ');
+        int data = packet[1];
+        Serial.print(data);
+        
         // Validate packet
         if( packet[0] == 'x' || packet[0] == 'y' || packet[0] == 'z' || packet[0] == 'p')
         {
             setServos(packet[0], packet[1]);
-            Serial.write(packet[0]);
-            Serial.write(' ');
-            int data = packet[1];
-            Serial.print(data);
-            Serial.write('\n');
+            Serial.write('\n'); // DEBUGGING
         }
         else
         {
-            Serial.write(packet[0]);
-            Serial.write(' ');
-            int data = packet[1];
-            Serial.print(data);
-            Serial.write(' ');
-            Serial.println("Packet Failed");
+            Serial.println(" Packet Failed"); // DEBUGGING
         }
         pntr = 0;
       }
