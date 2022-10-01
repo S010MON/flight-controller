@@ -1,10 +1,19 @@
+#include <Servo.h>
+
+#define DEBUG 1
+#if DEBUG == 1
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#else
+#define debug(x)
+#define debugln(x)
+#endif
+
 #define AILERON_L_PIN 11
 #define AILERON_R_PIN 10
 #define ELEVATOR_L_PIN 9
 #define ELEVATOR_R_PIN 6
 #define RUDDER_PIN 5
-
-#include <Servo.h>
 
 Servo ailr_l;
 Servo ailr_r;
@@ -30,33 +39,7 @@ void setup()
   elvr_r.attach(ELEVATOR_R_PIN);
   rudder.attach(RUDDER_PIN);
 
-  // Startup sequence
-  for( int i = 0; i < 180; i++)
-  {
-    ailr_l.write(i);
-    ailr_r.write(i);
-    elvr_l.write(i);
-    elvr_r.write(i);
-    rudder.write(i);
-    delay(10);
-  }
-  
-  for( int i = 180; i > 0; i--)
-  {
-    ailr_l.write(i);
-    ailr_r.write(i);
-    elvr_l.write(i);
-    elvr_r.write(i);
-    rudder.write(i);
-    delay(10);
-  }
-
-  // Reset to level
-  ailr_l.write(90);
-  ailr_r.write(90);
-  elvr_l.write(90);
-  elvr_r.write(90);
-  rudder.write(90);
+  startupSequence();
 }
 
 void loop() 
@@ -116,4 +99,37 @@ void setServos(int code, int angle)
     elvr_l.write(y);
     elvr_r.write(map(y, 0, 180, 180, 0));
     rudder.write(z);
+}
+
+
+void startupSequence()
+{
+  for( int i = 0; i < 180; i++)
+  {
+    ailr_l.write(i);
+    ailr_r.write(i);
+    elvr_l.write(i);
+    elvr_r.write(i);
+    rudder.write(i);
+    delay(10);
+  }
+  
+  for( int i = 180; i > 0; i--)
+  {
+    ailr_l.write(i);
+    ailr_r.write(i);
+    elvr_l.write(i);
+    elvr_r.write(i);
+    rudder.write(i);
+    delay(10);
+  }
+
+  // Reset to level
+  ailr_l.write(90);
+  ailr_r.write(90);
+  elvr_l.write(90);
+  elvr_r.write(90);
+  rudder.write(90);
+
+  Serial.println("Startup complete");
 }
