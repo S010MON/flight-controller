@@ -57,10 +57,9 @@ void loop()
         // DEBUGGING
         Serial.write(packet[0]);
         Serial.write(' ');
-        int data = packet[1];
-        Serial.print(data);
+        Serial.write(packet[1]);
         
-        // Validate packet
+        // Validate packet header
         if( packet[0] == 'x' || packet[0] == 'y' || packet[0] == 'z' || packet[0] == 'p')
         {
             setServos(packet[0], packet[1]);

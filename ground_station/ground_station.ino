@@ -25,9 +25,9 @@ void setup()
   for(int i = 0; i < 3; i++)
   {
     digitalWrite(LED, HIGH);
-    delay(100);
+    delay(50);
     digitalWrite(LED, LOW);
-    delay(100);
+    delay(50);
   }
 
   digitalWrite(LED, HIGH);
