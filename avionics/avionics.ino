@@ -1,3 +1,4 @@
+#include <SoftwareSerial.h>
 #include <Servo.h>
 
 #define DEBUG 1
@@ -9,11 +10,13 @@
 #define debugln(x)
 #endif
 
-#define AILERON_L_PIN 11
-#define AILERON_R_PIN 10
-#define ELEVATOR_L_PIN 9
-#define ELEVATOR_R_PIN 6
-#define RUDDER_PIN 5
+#define AILERON_L_PIN 12
+#define AILERON_R_PIN 9
+#define ELEVATOR_L_PIN 6
+#define ELEVATOR_R_PIN 5
+#define RUDDER_PIN 3
+
+SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
 
 Servo ailr_l;
 Servo ailr_r;
@@ -32,6 +35,7 @@ int packet[4];
 void setup() 
 {
   Serial.begin(9600);
+  HC12.begin(9600);
 
   ailr_l.attach(AILERON_L_PIN);
   ailr_r.attach(AILERON_R_PIN);
@@ -44,13 +48,13 @@ void setup()
 
 void loop() 
 {
-   if(Serial.available())
+   if(HC12.available())
    {
-      int currentChar = Serial.read();
+      int currentChar = HC12.read();
       if(currentChar != '\n')
       {
         packet[pntr++] = currentChar;
-        currentChar = Serial.read();
+        currentChar = HC12.read();
       }
       else
       {

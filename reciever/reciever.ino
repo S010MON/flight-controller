@@ -1,4 +1,4 @@
-/* 1byte HC12 TRANSMITTER example.
+/* 1byte HC12 Receiver example.
 /* Tutorial link: http://electronoobs.com/eng_arduino_tut96.php
  * Code: http://electronoobs.com/eng_arduino_tut96_code1.php
  * Scheamtic: http://electronoobs.com/eng_arduino_tut96_sch1.php
@@ -12,18 +12,21 @@
  */
 #include <SoftwareSerial.h>
 SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
-int pot = A2;
-int delay_ = 100;
+int LED = 3;
 
-void setup()
+void setup() 
 {
   Serial.begin(9600);             // Serial port to computer
   HC12.begin(9600);               // Serial port to HC12
-  pinMode(pot,INPUT);
+  pinMode(LED,OUTPUT);
 }
 
 void loop() 
-{  
-  int value = analogRead(pot);
-  HC12.write(value);
+{
+  while (HC12.available())  // If HC-12 has data
+  {       
+    char val = HC12.read();
+    Serial.println(HC12.read());      // Send the data to Serial monitor
+    //analogWrite(LED,val);
+  }  
 }
