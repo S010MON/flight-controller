@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 #include <Servo.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG == 1
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
@@ -10,40 +10,27 @@
 #define debugln(x)
 #endif
 
-#define AILERON_L_PIN 12
-#define AILERON_R_PIN 9
-#define ELEVATOR_L_PIN 6
-#define ELEVATOR_R_PIN 5
-#define RUDDER_PIN 3
-
 SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
-
-Servo ailr_l;
-Servo ailr_r;
-Servo elvr_l;
-Servo elvr_r;
-Servo rudder;
 
 int x = 90;
 int y = 90;
 int z = 90;
 int p = 0;
 
+int x_new;
+int y_new;
+int z_new;
+int p_new;
+
 int pntr = 0;
-int packet[4]; 
+int packet[10]; 
+
+int sensitivity = 2;
 
 void setup() 
 {
   Serial.begin(9600);
   HC12.begin(9600);
-
-  ailr_l.attach(AILERON_L_PIN);
-  ailr_r.attach(AILERON_R_PIN);
-  elvr_l.attach(ELEVATOR_L_PIN);
-  elvr_r.attach(ELEVATOR_R_PIN);
-  rudder.attach(RUDDER_PIN);
-
-  startupSequence();
 }
 
 void loop() 
@@ -54,85 +41,53 @@ void loop()
       if(currentChar != '\n')
       {
         packet[pntr++] = currentChar;
-        currentChar = HC12.read();
+        currentChar = HC12.read();      
       }
       else
-      {
+      {       
         // DEBUGGING
-        Serial.write(packet[0]);
-        Serial.write(' ');
-        Serial.write(packet[1]);
-        
-        // Validate packet header
-        if( packet[0] == 'x' || packet[0] == 'y' || packet[0] == 'z' || packet[0] == 'p')
+        for(int i = 0; i < 4; i++)
         {
-            setServos(packet[0], packet[1]);
-            Serial.write('\n'); // DEBUGGING
+          debug(packet[i]);
+          debug(" ");
+        }
+
+        if(pntr != 4)
+        {
+          debugln(" Packet failed");
+          pntr = 0;
         }
         else
         {
-            Serial.println(" Packet Failed"); // DEBUGGING
+          x_new = packet[0];
+          y_new = packet[1];
+          z_new = packet[2];
+          p_new = packet[3];
+  
+          if(abs(x_new - x) > sensitivity)
+          {
+            x = x_new;
+            Serial.write('x');
+            Serial.write(x);
+          }
+  
+          if(abs(y_new - y) > sensitivity)
+          {
+            y = y_new;
+            Serial.write('y');
+            Serial.write(y);
+          }
+  
+          if(abs(z_new - z) > sensitivity)
+          {
+            z = z_new;
+            Serial.write('z');
+            Serial.write(z);
+          }
+          Serial.write('\n');
         }
+        
         pntr = 0;
       }
    }
-}
-
-void setServos(int code, int angle)
-{
-    if(code == 'x')
-    {
-       x = angle;
-    }
-    else if(code == 'y')
-    {
-        y = angle;
-    }
-    else if(code == 'z')
-    {
-        z = angle;
-    }
-    else if(code == 'p')
-    {
-        p = angle;
-    }
-
-    ailr_l.write(x);
-    ailr_r.write(x);
-    elvr_l.write(y);
-    elvr_r.write(map(y, 0, 180, 180, 0));
-    rudder.write(z);
-}
-
-
-void startupSequence()
-{
-  for( int i = 0; i < 180; i++)
-  {
-    ailr_l.write(i);
-    ailr_r.write(i);
-    elvr_l.write(i);
-    elvr_r.write(i);
-    rudder.write(i);
-    delay(10);
-  }
-  
-  for( int i = 180; i > 0; i--)
-  {
-    ailr_l.write(i);
-    ailr_r.write(i);
-    elvr_l.write(i);
-    elvr_r.write(i);
-    rudder.write(i);
-    delay(10);
-  }
-
-  // Reset to level
-  ailr_l.write(90);
-  ailr_r.write(90);
-  elvr_l.write(90);
-  elvr_r.write(90);
-  rudder.write(90);
-
-  Serial.println("Startup complete");
 }

@@ -12,9 +12,23 @@ int l_x;
 int l_y;
 int r_x;
 int r_y;
+
+int l_x_new;
+int l_y_new;
+int r_x_new;
+int r_y_new;
+
+int delta_l_x;
+int delta_l_y;
+int delta_r_x;
+int delta_r_y;
+
+int sensitivity = 2;
 bool led;
-long flashRate = 1000; // milliseconds
+int refreshRate = 10;
+int flashRate = 1000; // milliseconds
 unsigned long timer;
+unsigned long LED_timer;
 
 void setup() 
 {
@@ -38,49 +52,66 @@ void setup()
   digitalWrite(LED, HIGH);
   led = true;
   timer =  millis();
+  LED_timer = timer;
 }
 
 void loop()
 {
   checkTimer();
-  
-  l_y = map(analogRead(L_STICK_Y), 0, 1023, 0, 180);
-  r_x = map(analogRead(R_STICK_X), 0, 1023, 0, 180);
-  r_y = map(analogRead(R_STICK_Y), 0, 1023, 0, 180);
 
-  if( map(analogRead(R_STICK_X), 0, 1023, 0, 180) != r_x)         // Roll
+  l_x_new = map(analogRead(L_STICK_X), 0, 1023, 0, 180);
+  l_y_new = map(analogRead(L_STICK_Y), 0, 1023, 0, 180);
+  r_x_new = map(analogRead(R_STICK_X), 0, 1023, 0, 180);
+  r_y_new = map(analogRead(R_STICK_Y), 0, 1023, 0, 180);
+
+  delta_l_x = abs(l_x - l_x_new);
+  delta_l_y = abs(l_y - l_y_new);
+  delta_r_x = abs(r_x - r_x_new);
+  delta_r_y = abs(r_y - r_y_new);
+
+  // If a change is detected in the joysticks
+  if(delta_l_x > sensitivity ||
+      delta_l_y > sensitivity ||
+      delta_r_x > sensitivity ||
+      delta_r_y > sensitivity)
   {
-    r_x = map(analogRead(R_STICK_X), 0, 1023, 0, 180);
-    HC12.write('x');
+      l_x = l_x_new;
+      l_y = l_y_new;
+      r_x = r_x_new;
+      r_y = r_y_new;
+    
+    // Send a packet with updated information
     HC12.write(r_x);
-    HC12.write('\n');
-  }
-  else if( map(analogRead(R_STICK_Y), 0, 1023, 0, 180) != r_y)    // Pitch
-  {
-    r_y = map(analogRead(R_STICK_Y), 0, 1023, 0, 180);
-    HC12.write('y');
     HC12.write(r_y);
-    HC12.write('\n');
-  }
-  else if( map(analogRead(L_STICK_X), 0, 1023, 0, 180) != l_x)    // Yaw
-  {
-    l_x = map(analogRead(L_STICK_X), 0, 1023, 0, 180);
-    HC12.write('z');
     HC12.write(l_x);
-    HC12.write('\n');
-  }
-  else if( map(analogRead(L_STICK_Y), 0, 1023, 0, 180) != l_y)    // Power
-  {
-    l_y = map(analogRead(L_STICK_Y), 0, 1023, 0, 180);
-    HC12.write('p');
     HC12.write(l_y);
     HC12.write('\n');
+
+    // Debugging
+    Serial.write(r_x);
+    Serial.write(r_y);
+    Serial.write(l_x);
+    Serial.write(l_y);
+    Serial.write('\n');
   }
 }
 
-void checkTimer()
+bool checkTimer()
 {
-  long timeElapsed = millis() - timer;
+  long currentTime = millis();
+  long timeElapsed = currentTime - timer;
+  if(timeElapsed > refreshRate)
+  {
+      timer = currentTime;
+      return true;
+  }
+  return false;
+}
+
+void checkLEDTimer()
+{
+  long currentTime = millis();
+  long timeElapsed = currentTime - LED_timer;
   if(timeElapsed > flashRate)
   {
       if(led)
@@ -92,6 +123,6 @@ void checkTimer()
         digitalWrite(LED, HIGH);
       }
       led = !led;
-      timer = millis();
+      LED_timer = currentTime;
   }
 }
