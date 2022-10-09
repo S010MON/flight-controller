@@ -1,5 +1,4 @@
 #include <SoftwareSerial.h>
-#include <Servo.h>
 
 #define DEBUG 0
 #if DEBUG == 1
@@ -80,22 +79,16 @@ void loop()
       {
         x = map(packet[1], 0, 128, 0 ,179);
         writeOut(1, x);
-        Serial.print("x ");
-        Serial.println(x);
       }
       else if (packet[0] == 'y') 
       {
         y = map(packet[1], 0, 128, 0 ,179);
         writeOut(2, y);
-        Serial.print("y ");
-        Serial.println(y);
       }
       else if (packet[0] == 'z') 
       {
         z = map(packet[1], 0, 128, 0 ,179);
         writeOut(3, z);
-        Serial.print("z ");
-        Serial.println(z);
       }
       else if (packet[0] == 'p')
       {
