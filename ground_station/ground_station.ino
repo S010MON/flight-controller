@@ -1,5 +1,14 @@
 #include <SoftwareSerial.h>
 
+#define DEBUG 1
+#if DEBUG == 1
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#else
+#define debug(x)
+#define debugln(x)
+#endif
+
 #define L_STICK_X A1
 #define L_STICK_Y A0
 #define R_STICK_X A3
@@ -74,9 +83,9 @@ void loop()
     HC12.write(l_x);
     HC12.write('\n');
 
-    Serial.write('z');
-    Serial.write(l_x);
-    Serial.write('\n');
+    debug('z');
+    debug(l_x);
+    debug('\n');
   }
 
   if(delta_l_y > sensitivity)
@@ -86,9 +95,9 @@ void loop()
     HC12.write(l_y);
     HC12.write('\n');
 
-    Serial.write('p');
-    Serial.write(l_y);
-    Serial.write('\n');
+    debug('p');
+    debug(l_y);
+    debug('\n');
   }
 
   if(delta_r_x > sensitivity)
@@ -98,9 +107,9 @@ void loop()
     HC12.write(r_x);
     HC12.write('\n');
 
-    Serial.write('x');
-    Serial.write(r_x);
-    Serial.write('\n');
+    debug('x');
+    debug(r_x);
+    debug('\n');
   }
 
   if(delta_r_y > sensitivity)
@@ -110,9 +119,12 @@ void loop()
     HC12.write(r_y);
     HC12.write('\n');
 
-    Serial.write('y');
-    Serial.println(r_y, DEC);
+    debug('y');
+    debug(r_y);
+    debug('\n');
   }
+
+  delay(10);
 }
 
 void checkTimer()
