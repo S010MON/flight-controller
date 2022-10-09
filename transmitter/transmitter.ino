@@ -12,7 +12,7 @@
  */
 #include <SoftwareSerial.h>
 SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
-int pot = A2;
+int pot = A4;
 int delay_ = 100;
 
 void setup()

@@ -10,18 +10,18 @@
 #define debugln(x)
 #endif
 
-#define d0 2
-#define d1 3
-#define d2 4
-#define d3 5
-#define d4 6
-#define d5 7
-#define d6 8
-#define d7 9
+#define d0 A7
+#define d1 A6
+#define d2 A5
+#define d3 A4
+#define d4 A3
+#define d5 A2
+#define d6 A1
+#define d7 A0
 
 #define SELECT_1 12
 #define SELECT_2 13
-#define ENABLE A0
+#define ENABLE 9
 
 SoftwareSerial HC12(10, 11);  // HC-12 TX Pin, HC-12 RX Pin
 

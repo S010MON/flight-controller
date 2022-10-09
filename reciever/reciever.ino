@@ -12,7 +12,8 @@
  */
 #include <SoftwareSerial.h>
 SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
-int LED = 3;
+int LED = 13;
+int val;
 
 void setup() 
 {
@@ -23,10 +24,13 @@ void setup()
 
 void loop() 
 {
-  while (HC12.available())  // If HC-12 has data
+  if(HC12.available())  // If HC-12 has data
   {       
-    char val = HC12.read();
-    Serial.println(HC12.read());      // Send the data to Serial monitor
-    //analogWrite(LED,val);
-  }  
+    val = HC12.read();
+    digitalWrite(LED, HIGH);
+    delay(val);
+    digitalWrite(LED, LOW);
+    delay(val);
+  }
+
 }

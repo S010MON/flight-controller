@@ -1,19 +1,11 @@
 #include <Servo.h>
 
-#define DEBUG 1
-#if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
-#else
-#define debug(x)
-#define debugln(x)
-#endif
-
 #define AILERON_L_PIN 11
 #define AILERON_R_PIN 10
 #define ELEVATOR_L_PIN 9
 #define ELEVATOR_R_PIN 6
 #define RUDDER_PIN 5
+#define AILERON_L_IN A0
 
 Servo ailr_l;
 Servo ailr_r;
@@ -26,10 +18,10 @@ int y = 90;
 int z = 90;
 int p = 0;
 
-int pntr = 0;
-int packet[4]; 
+int refreshRate = 100; // milliseconds
+long timer;
 
-void setup() 
+void setup()
 {
   Serial.begin(9600);
 
@@ -40,64 +32,39 @@ void setup()
   rudder.attach(RUDDER_PIN);
 
   startupSequence();
+  timer = millis();
 }
 
 void loop() 
 {
-   if(Serial.available())
-   {
-      int currentChar = Serial.read();
-      if(currentChar != '\n')
-      {
-        packet[pntr++] = currentChar;
-        currentChar = Serial.read();
-      }
-      else
-      {
-        // DEBUGGING
-        debug(packet[0]);
-        debug(' ');
-        debug(packet[1]);
-        
-        // Validate packet header
-        if( packet[0] == 'x' || packet[0] == 'y' || packet[0] == 'z' || packet[0] == 'p')
-        {
-            setServos(packet[0], packet[1]);
-            debug('\n');
-        }
-        else
-        {
-            debugln(" Packet Failed");
-        }
-        pntr = 0;
-      }
-   }
+    if(Serial.available())
+    {
+      int data = Serial.read();
+      Serial.print(data);
+      x = map(data, 0, 255, 0, 180);      
+    }
+
+    if(checkTimer())
+    {
+      ailr_l.write(x);
+      ailr_r.write(x);
+      elvr_l.write(y);
+      elvr_r.write(map(y, 0, 180, 180, 0));
+      rudder.write(z);      
+    }
 }
 
-void setServos(int code, int angle)
-{
-    if(code == 'x')
-    {
-       x = angle;
-    }
-    else if(code == 'y')
-    {
-        y = angle;
-    }
-    else if(code == 'z')
-    {
-        z = angle;
-    }
-    else if(code == 'p')
-    {
-        p = angle;
-    }
 
-    ailr_l.write(x);
-    ailr_r.write(x);
-    elvr_l.write(y);
-    elvr_r.write(map(y, 0, 180, 180, 0));
-    rudder.write(z);
+bool checkTimer()
+{
+  long currentTime = millis();
+  long timeElapsed = currentTime - timer;
+  if(timeElapsed > refreshRate)
+  {
+    timer = currentTime;
+    return true;
+  }
+  return false;
 }
 
 

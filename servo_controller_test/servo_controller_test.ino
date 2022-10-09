@@ -6,17 +6,18 @@
 #define ELEVATOR_R_PIN 6
 #define RUDDER_PIN 5
 
-#define d0 A0
-#define d1 A1
-#define d2 A2
-#define d3 A3
-#define d4 A4
-#define d5 A5
-#define d6 A6
-#define d7 A7
+#define d0 A7
+#define d1 A6
+#define d2 A5
+#define d3 A4
+#define d4 A3
+#define d5 A2
+#define d6 A1
+#define d7 A0
 
-#define SELECT_0 8
-#define SELECT_1 9
+#define SELECT_1 7
+#define SELECT_2 8
+#define ENABLE 13
 
 Servo ailr_l;
 Servo ailr_r;
@@ -29,8 +30,7 @@ int y = 90;
 int z = 90;
 int p = 0;
 
-int slct_0;
-int slct_1;
+int servo_select;
 int data;
 
 int refreshRate = 100; // milliseconds
@@ -47,8 +47,9 @@ void setup()
   pinMode(d6, INPUT);
   pinMode(d7, INPUT);
 
-  pinMode(SELECT_0, INPUT);
   pinMode(SELECT_1, INPUT);
+  pinMode(SELECT_2, INPUT);
+  pinMode(ENABLE, INPUT);
 
   Serial.begin(9600);
 
@@ -65,29 +66,29 @@ void setup()
 
 void loop() 
 {
-  readPortIn();
-  Serial.println(data);
-  /*
-    x = 00, y = 01, z = 10, p = 11
-  */
-    x = data;
-    ailr_l.write(x);
-    ailr_r.write(x);
-  // else if(slct_1)
-  // {
-  //   y = data;
-  //   elvr_l.write(y);
-  //   elvr_r.write(y);
-  // }
-  // else if(false)
-  // {
-  //   z = data;
-  //   rudder.write(z); 
-  // }  
-  // else
-  // {
-  //   p = data;
-  // }  
+  if(digitalRead(ENABLE) == HIGH)
+  {
+    readPortIn();
+    Serial.println(data);
+
+    if(servo_select == 1)
+    {
+      x = data;
+      ailr_l.write(x);
+      ailr_r.write(x);
+    }
+    else if(servo_select == 2)
+    {
+      y = data;
+      elvr_l.write(y);
+      elvr_r.write(y);
+    }
+    else if(servo_select == 3)
+    {
+      z = data;
+      rudder.write(z);
+    }
+  }
 }
 
 
@@ -105,8 +106,21 @@ bool checkTimer()
 
 void readPortIn()
 {
-  slct_0 = digitalRead(SELECT_0);
-  slct_1 = digitalRead(SELECT_1);
+  int s1 = digitalRead(SELECT_1);
+  int s2 = digitalRead(SELECT_2);
+  if(s1 == LOW && s2 == LOW)
+  {
+    servo_select = 1;
+  }
+  else if(s1 == LOW && s2 == HIGH)
+  {
+    servo_select = 2;
+  }
+  else if(s1 == HIGH && s2 == LOW)
+  {
+    servo_select = 3;
+  }
+
 
   int bits[8];
   bits[0] = digitalRead(d0);
